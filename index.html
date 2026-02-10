@@ -1,208 +1,191 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eichel Ober Gambling Games</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background-color: #0f172a;
-            color: #ffffff;
-        }
+<title>Eichel Ober – Bluff Game</title>
 
-        header {
-            background: linear-gradient(135deg, #16a34a, #15803d);
-            padding: 60px 20px;
-            text-align: center;
-        }
+<style>
 
-        header h1 {
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #020617;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-        header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
+/* Handy-Layout */
+#app {
+    width: 100%;
+    max-width: 400px;
+    height: 100vh;
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
 
-        nav {
-            background: #020617;
-            padding: 15px;
-            text-align: center;
-        }
+h1 {
+    color: #22c55e;
+}
 
-        nav a {
-            color: #ffffff;
-            text-decoration: none;
-            margin: 0 15px;
-            font-weight: bold;
-        }
+.card {
+    background: #0f172a;
+    padding: 25px;
+    border-radius: 10px;
+    font-size: 1.5rem;
+    margin: 20px 0;
+    display: none;
+}
 
-        nav a:hover {
-            color: #22c55e;
-        }
+button {
+    padding: 15px;
+    margin: 10px 0;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: #16a34a;
+    color: white;
+    cursor: pointer;
+}
 
-        section {
-            padding: 60px 20px;
-            max-width: 1100px;
-            margin: auto;
-        }
+button:hover {
+    background: #22c55e;
+}
 
-        h2 {
-            color: #22c55e;
-            margin-bottom: 20px;
-        }
+#result {
+    font-size: 1.3rem;
+    margin-top: 20px;
+    color: #4ade80;
+}
 
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-        }
+.hidden {
+    display: none;
+}
 
-        .card {
-            background: #020617;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(34,197,94,0.2);
-        }
-
-        .card h3 {
-            margin-bottom: 10px;
-            color: #4ade80;
-        }
-
-        .cta {
-            background: #16a34a;
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .cta h2 {
-            color: white;
-        }
-
-        .cta button {
-            margin-top: 20px;
-            padding: 15px 35px;
-            font-size: 1rem;
-            background: #020617;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .cta button:hover {
-            background: #0f172a;
-        }
-
-        footer {
-            background: #020617;
-            text-align: center;
-            padding: 25px;
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }
-    </style>
+</style>
 </head>
 
 <body>
 
-<header>
-    <h1>Eichel Ober Gambling Games</h1>
-    <p>Premium Online-Gaming. Maximale Spannung. Reale Gewinne.</p>
-</header>
+<div id="app">
 
-<nav>
-    <a href="#about">Über Uns</a>
-    <a href="#games">Spiele</a>
-    <a href="#security">Sicherheit</a>
-    <a href="#contact">Kontakt</a>
-</nav>
+    <h1>🎴 Eichel Ober Bluff</h1>
 
-<section id="about">
-    <h2>Über Uns</h2>
-    <p>
-        Eichel Ober Gambling Games steht für modernes Online-Gambling auf höchstem Niveau.
-        Wir kombinieren innovative Technologie mit fairen Spielmechaniken und maximaler Transparenz.
-    </p>
-    <p>
-        Unser Ziel: Ein sicheres, spannendes und profitables Spielerlebnis.
-    </p>
-</section>
+    <p>Zwei Spieler. Bluffen. Gewinnen.</p>
 
-<section id="games">
-    <h2>Unsere Spiele</h2>
+    <!-- Spieler 1 -->
+    <button onclick="showCard(1)">Spieler 1: Karte ansehen</button>
+    <div id="card1" class="card"></div>
 
-    <div class="cards">
+    <!-- Spieler 2 -->
+    <button onclick="showCard(2)">Spieler 2: Karte ansehen</button>
+    <div id="card2" class="card"></div>
 
-        <div class="card">
-            <h3>Blackjack Pro</h3>
-            <p>Strategisches Kartenspiel mit Live-Dealer-Option.</p>
-        </div>
+    <!-- Aufdecken -->
+    <button onclick="reveal()">Karten aufdecken</button>
 
-        <div class="card">
-            <h3>Roulette Elite</h3>
-            <p>Klassisches Roulette in HD mit Echtzeit-Statistiken.</p>
-        </div>
+    <div id="result"></div>
 
-        <div class="card">
-            <h3>Slot Legends</h3>
-            <p>Moderne Spielautomaten mit hohen Jackpots.</p>
-        </div>
+    <button onclick="restart()">Neue Runde</button>
 
-        <div class="card">
-            <h3>Poker Masters</h3>
-            <p>Turniere und Cash Games für Profis und Einsteiger.</p>
-        </div>
+</div>
 
-    </div>
-</section>
 
-<section id="security">
-    <h2>Sicherheit & Fairplay</h2>
+<script>
 
-    <p>
-        Wir setzen auf modernste Verschlüsselung, zertifizierte Zufallsgeneratoren
-        und strenge Datenschutzrichtlinien.
-    </p>
+// Karten mit Wert
+const cards = [
+    { name: "Sieben", value: 1 },
+    { name: "Acht", value: 2 },
+    { name: "Neun", value: 3 },
+    { name: "Unter", value: 4 },
+    { name: "Ober", value: 5 },
+    { name: "König", value: 6 },
+    { name: "Zehn", value: 7 },
+    { name: "Ass", value: 8 }
+];
 
-    <ul>
-        <li>✔ SSL-Verschlüsselung</li>
-        <li>✔ Lizenzierte Software</li>
-        <li>✔ Faire Auszahlungsquoten</li>
-        <li>✔ 24/7 Monitoring</li>
-    </ul>
-</section>
+// Zufallskarte
+function randomCard() {
+    return cards[Math.floor(Math.random() * cards.length)];
+}
 
-<section id="contact">
-    <h2>Kontakt</h2>
+let player1 = randomCard();
+let player2 = randomCard();
 
-    <p>
-        Hast du Fragen oder brauchst Support?
-        Unser Team ist jederzeit für dich da.
-    </p>
+let seen1 = false;
+let seen2 = false;
 
-    <p>
-        📧 support@eichelober-games.com<br>
-        📞 +49 123 456789
-    </p>
-</section>
 
-<section class="cta">
-    <h2>Jetzt starten und gewinnen</h2>
-    <p>Registriere dich noch heute und sichere dir deinen Willkommensbonus.</p>
+// Karte anzeigen (nur für Spieler)
+function showCard(player) {
 
-    <button>Jetzt registrieren</button>
-</section>
+    if (player === 1 && !seen1) {
+        document.getElementById("card1").innerText =
+            "Deine Karte: " + player1.name;
+        document.getElementById("card1").style.display = "block";
+        seen1 = true;
+    }
 
-<footer>
-    © 2026 Eichel Ober Gambling Games · Alle Rechte vorbehalten
-</footer>
+    if (player === 2 && !seen2) {
+        document.getElementById("card2").innerText =
+            "Deine Karte: " + player2.name;
+        document.getElementById("card2").style.display = "block";
+        seen2 = true;
+    }
+}
+
+
+// Gewinner ermitteln
+function reveal() {
+
+    if (!seen1 || !seen2) {
+        alert("Beide Spieler müssen ihre Karte sehen!");
+        return;
+    }
+
+    let result = "";
+
+    if (player1.value > player2.value) {
+        result = "🏆 Spieler 1 gewinnt!";
+    }
+    else if (player2.value > player1.value) {
+        result = "🏆 Spieler 2 gewinnt!";
+    }
+    else {
+        result = "🤝 Unentschieden!";
+    }
+
+    document.getElementById("result").innerText =
+        "Spieler 1: " + player1.name +
+        " | Spieler 2: " + player2.name +
+        "\n" + result;
+}
+
+
+// Neustart
+function restart() {
+
+    player1 = randomCard();
+    player2 = randomCard();
+
+    seen1 = false;
+    seen2 = false;
+
+    document.getElementById("card1").style.display = "none";
+    document.getElementById("card2").style.display = "none";
+
+    document.getElementById("result").innerText = "";
+}
+
+</script>
 
 </body>
 </html>
