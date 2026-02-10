@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Eichel Ober – Bluff Game</title>
+<title>Schafkopf Bluff</title>
 
 <style>
 
@@ -13,45 +13,52 @@ body {
     font-family: Arial, sans-serif;
     background: #020617;
     color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
 }
 
-/* Handy-Layout */
 #app {
-    width: 100%;
-    max-width: 400px;
+    max-width: 420px;
+    margin: auto;
     height: 100vh;
-    padding: 20px;
-    text-align: center;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
 }
 
-h1 {
-    color: #22c55e;
+/* Spielerbereiche */
+.player {
+    flex: 1;
+    border: 2px solid #22c55e;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Unterer Spieler gespiegelt */
+.bottom {
+    transform: rotate(180deg);
+}
+
+h2 {
+    margin-bottom: 10px;
 }
 
 .card {
     background: #0f172a;
-    padding: 25px;
+    padding: 20px 30px;
     border-radius: 10px;
-    font-size: 1.5rem;
-    margin: 20px 0;
+    font-size: 1.3rem;
     display: none;
+    margin: 10px 0;
 }
 
 button {
-    padding: 15px;
-    margin: 10px 0;
-    font-size: 1rem;
+    padding: 12px 20px;
+    margin: 5px;
     border: none;
     border-radius: 8px;
     background: #16a34a;
     color: white;
+    font-size: 1rem;
     cursor: pointer;
 }
 
@@ -59,14 +66,17 @@ button:hover {
     background: #22c55e;
 }
 
-#result {
-    font-size: 1.3rem;
-    margin-top: 20px;
-    color: #4ade80;
+/* Mitte */
+#center {
+    background: #020617;
+    padding: 15px;
+    text-align: center;
 }
 
-.hidden {
-    display: none;
+#result {
+    margin-top: 10px;
+    font-size: 1.2rem;
+    color: #4ade80;
 }
 
 </style>
@@ -76,105 +86,142 @@ button:hover {
 
 <div id="app">
 
-    <h1>🎴 Eichel Ober Bluff</h1>
+    <!-- Spieler Oben -->
+    <div class="player top">
 
-    <p>Zwei Spieler. Bluffen. Gewinnen.</p>
+        <h2>Spieler Oben</h2>
 
-    <!-- Spieler 1 -->
-    <button onclick="showCard(1)">Spieler 1: Karte ansehen</button>
-    <div id="card1" class="card"></div>
+        <button onclick="showCard(1)">Karte ansehen</button>
 
-    <!-- Spieler 2 -->
-    <button onclick="showCard(2)">Spieler 2: Karte ansehen</button>
-    <div id="card2" class="card"></div>
+        <div id="card1" class="card"></div>
 
-    <!-- Aufdecken -->
-    <button onclick="reveal()">Karten aufdecken</button>
+    </div>
 
-    <div id="result"></div>
 
-    <button onclick="restart()">Neue Runde</button>
+    <!-- Mitte -->
+    <div id="center">
+
+        <p>🤫 Karten verdecken · Bluffen · Verhandeln</p>
+
+        <button onclick="reveal()">Aufdecken</button>
+
+        <div id="result"></div>
+
+        <button onclick="restart()">Neue Runde</button>
+
+    </div>
+
+
+    <!-- Spieler Unten -->
+    <div class="player bottom">
+
+        <h2>Spieler Unten</h2>
+
+        <button onclick="showCard(2)">Karte ansehen</button>
+
+        <div id="card2" class="card"></div>
+
+    </div>
 
 </div>
 
 
 <script>
 
-// Karten mit Wert
-const cards = [
-    { name: "Sieben", value: 1 },
-    { name: "Acht", value: 2 },
-    { name: "Neun", value: 3 },
-    { name: "Unter", value: 4 },
-    { name: "Ober", value: 5 },
-    { name: "König", value: 6 },
-    { name: "Zehn", value: 7 },
-    { name: "Ass", value: 8 }
+// Farben
+const colors = [
+    "Eichel 🟢",
+    "Schell 🔵",
+    "Laub 🟡",
+    "Herz 🔴"
 ];
 
-// Zufallskarte
+// Kartenwerte
+const ranks = [
+    { name: "7", value: 1 },
+    { name: "8", value: 2 },
+    { name: "9", value: 3 },
+    { name: "10", value: 4 },
+    { name: "Unter", value: 5 },
+    { name: "Ober", value: 6 }
+];
+
+// Karte erzeugen
 function randomCard() {
-    return cards[Math.floor(Math.random() * cards.length)];
+
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const rank = ranks[Math.floor(Math.random() * ranks.length)];
+
+    return {
+        name: rank.name + " " + color,
+        value: rank.value
+    };
 }
 
-let player1 = randomCard();
-let player2 = randomCard();
+
+// Startkarten
+let p1 = randomCard();
+let p2 = randomCard();
 
 let seen1 = false;
 let seen2 = false;
 
 
-// Karte anzeigen (nur für Spieler)
+// Anzeigen
 function showCard(player) {
 
     if (player === 1 && !seen1) {
+
         document.getElementById("card1").innerText =
-            "Deine Karte: " + player1.name;
+            "Deine Karte:\n" + p1.name;
+
         document.getElementById("card1").style.display = "block";
         seen1 = true;
     }
 
     if (player === 2 && !seen2) {
+
         document.getElementById("card2").innerText =
-            "Deine Karte: " + player2.name;
+            "Deine Karte:\n" + p2.name;
+
         document.getElementById("card2").style.display = "block";
         seen2 = true;
     }
 }
 
 
-// Gewinner ermitteln
+// Aufdecken
 function reveal() {
 
     if (!seen1 || !seen2) {
-        alert("Beide Spieler müssen ihre Karte sehen!");
+        alert("Beide müssen ihre Karte sehen!");
         return;
     }
 
-    let result = "";
+    let text = "";
 
-    if (player1.value > player2.value) {
-        result = "🏆 Spieler 1 gewinnt!";
+    if (p1.value > p2.value) {
+        text = "🏆 Spieler Oben gewinnt!";
     }
-    else if (player2.value > player1.value) {
-        result = "🏆 Spieler 2 gewinnt!";
+    else if (p2.value > p1.value) {
+        text = "🏆 Spieler Unten gewinnt!";
     }
     else {
-        result = "🤝 Unentschieden!";
+        text = "🤝 Unentschieden!";
     }
 
     document.getElementById("result").innerText =
-        "Spieler 1: " + player1.name +
-        " | Spieler 2: " + player2.name +
-        "\n" + result;
+        "Oben: " + p1.name +
+        "\nUnten: " + p2.name +
+        "\n" + text;
 }
 
 
 // Neustart
 function restart() {
 
-    player1 = randomCard();
-    player2 = randomCard();
+    p1 = randomCard();
+    p2 = randomCard();
 
     seen1 = false;
     seen2 = false;
