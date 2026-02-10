@@ -4,79 +4,91 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Schafkopf Bluff</title>
+<title>Schafkopf iPad Duel</title>
 
 <style>
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #020617;
-    color: white;
+body{
+    margin:0;
+    font-family:Arial;
+    background:#020617;
+    color:white;
 }
 
-#app {
-    max-width: 420px;
-    margin: auto;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
+/* Gesamt-App */
+#app{
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    max-width:800px;
+    margin:auto;
 }
 
-/* Spielerbereiche */
-.player {
-    flex: 1;
-    border: 2px solid #22c55e;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+/* Spielerzonen */
+.player{
+    height:25vh;
+    border-bottom:2px solid #22c55e;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
 }
 
-/* Unterer Spieler gespiegelt */
-.top {
-    transform: rotate(180deg);
+.bottom{
+    transform:rotate(180deg);
+    border-top:2px solid #22c55e;
+    border-bottom:none;
 }
 
-h2 {
-    margin-bottom: 10px;
+/* Mittelzone = frei */
+#center{
+    flex:1;
+    background:#020617;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
 }
 
-.card {
-    background: #0f172a;
-    padding: 20px 30px;
-    border-radius: 10px;
-    font-size: 1.3rem;
-    display: none;
-    margin: 10px 0;
+/* Karten */
+.hand{
+    display:flex;
+    gap:10px;
 }
 
-button {
-    padding: 12px 20px;
-    margin: 5px;
-    border: none;
-    border-radius: 8px;
-    background: #16a34a;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
+.card{
+    background:#0f172a;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:0.9rem;
+    border:2px solid transparent;
 }
 
-button:hover {
-    background: #22c55e;
+.card:hover{
+    border:2px solid #22c55e;
 }
 
-/* Mitte */
-#center {
-    background: #020617;
-    padding: 15px;
-    text-align: center;
+.selected{
+    border:2px solid gold;
 }
 
-#result {
-    margin-top: 10px;
-    font-size: 1.2rem;
-    color: #4ade80;
+/* Buttons klein */
+button{
+    padding:6px 12px;
+    margin:4px;
+    font-size:0.8rem;
+    border:none;
+    border-radius:6px;
+    background:#16a34a;
+    color:white;
+    cursor:pointer;
+}
+
+#info{
+    font-size:1.1rem;
+    color:#4ade80;
+    white-space:pre-line;
 }
 
 </style>
@@ -86,42 +98,46 @@ button:hover {
 
 <div id="app">
 
-    <!-- Spieler Oben -->
-    <div class="player top">
+<!-- Spieler Oben -->
+<div class="player">
 
-        <h2>Spieler Oben</h2>
+<h4>Spieler Oben</h4>
 
-        <button onclick="showCard(1)">Karte ansehen</button>
+<div id="hand1" class="hand"></div>
 
-        <div id="card1" class="card"></div>
+<button onclick="lockPick(1)">Auswahl sperren</button>
 
-    </div>
-
-
-    <!-- Mitte -->
-    <div id="center">
-
-        <p>🤫 Karten verdecken · Bluffen · Verhandeln</p>
-
-        <button onclick="reveal()">Aufdecken</button>
-
-        <div id="result"></div>
-
-        <button onclick="restart()">Neue Runde</button>
-
-    </div>
+</div>
 
 
-    <!-- Spieler Unten -->
-    <div class="player bottom">
+<!-- Mitte (frei) -->
+<div id="center">
 
-        <h2>Spieler Unten</h2>
+<div>
 
-        <button onclick="showCard(2)">Karte ansehen</button>
+<p id="starter"></p>
 
-        <div id="card2" class="card"></div>
+<button onclick="reveal()">Aufdecken</button>
 
-    </div>
+<div id="info"></div>
+
+<button onclick="restart()">Neue Runde</button>
+
+</div>
+
+</div>
+
+
+<!-- Spieler Unten -->
+<div class="player bottom">
+
+<h4>Spieler Unten</h4>
+
+<div id="hand2" class="hand"></div>
+
+<button onclick="lockPick(2)">Auswahl sperren</button>
+
+</div>
 
 </div>
 
@@ -129,108 +145,209 @@ button:hover {
 <script>
 
 // Farben
-const colors = [
-    "Eichel 🟢",
-    "Schell 🔵",
-    "Laub 🟡",
-    "Herz 🔴"
-];
+const suits = ["Eichel","Laub","Herz","Schell"];
 
-// Kartenwerte
+// Ränge
 const ranks = [
-    { name: "7", value: 1 },
-    { name: "8", value: 2 },
-    { name: "9", value: 3 },
-    { name: "10", value: 4 },
-    { name: "Unter", value: 5 },
-    { name: "Ober", value: 6 }
+    {name:"Ober",value:6,trump:true},
+    {name:"Unter",value:5,trump:true},
+    {name:"10",value:4,trump:false},
+    {name:"9",value:3,trump:false},
+    {name:"8",value:2,trump:false},
+    {name:"7",value:1,trump:false}
 ];
 
-// Karte erzeugen
-function randomCard() {
+function randomCard(){
 
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    const rank = ranks[Math.floor(Math.random() * ranks.length)];
+    let s = suits[Math.floor(Math.random()*4)];
+    let r = ranks[Math.floor(Math.random()*6)];
 
-    return {
-        name: rank.name + " " + color,
-        value: rank.value
+    return{
+        suit:s,
+        rank:r,
+        power:r.value,
+        name:r.name+" "+s
     };
 }
 
 
-// Startkarten
-let p1 = randomCard();
-let p2 = randomCard();
+// 3 Karten pro Spieler
+let p1Hand=[];
+let p2Hand=[];
 
-let seen1 = false;
-let seen2 = false;
+let pick1=null;
+let pick2=null;
+
+let lock1=false;
+let lock2=false;
+
+// Starter
+let starter;
 
 
-// Anzeigen
-function showCard(player) {
+// Setup
+function setup(){
 
-    if (player === 1 && !seen1) {
+    p1Hand=[];
+    p2Hand=[];
 
-        document.getElementById("card1").innerText =
-            "Deine Karte:\n" + p1.name;
-
-        document.getElementById("card1").style.display = "block";
-        seen1 = true;
+    for(let i=0;i<3;i++){
+        p1Hand.push(randomCard());
+        p2Hand.push(randomCard());
     }
 
-    if (player === 2 && !seen2) {
+    pick1=null;
+    pick2=null;
 
-        document.getElementById("card2").innerText =
-            "Deine Karte:\n" + p2.name;
+    lock1=false;
+    lock2=false;
 
-        document.getElementById("card2").style.display = "block";
-        seen2 = true;
+    starter = Math.random()<0.5 ? 1:2;
+
+    document.getElementById("starter").innerText=
+        "🎲 Angeber: Spieler "+
+        (starter===1?"Oben":"Unten");
+
+    info.innerText="";
+
+    renderHands();
+}
+
+
+// Karten anzeigen
+function renderHands(){
+
+    hand1.innerHTML="";
+    hand2.innerHTML="";
+
+    p1Hand.forEach((c,i)=>{
+
+        let div=document.createElement("div");
+        div.className="card";
+        div.innerText=c.name;
+
+        div.onclick=()=>selectCard(1,i,div);
+
+        hand1.appendChild(div);
+    });
+
+    p2Hand.forEach((c,i)=>{
+
+        let div=document.createElement("div");
+        div.className="card";
+        div.innerText=c.name;
+
+        div.onclick=()=>selectCard(2,i,div);
+
+        hand2.appendChild(div);
+    });
+}
+
+
+// Auswahl
+function selectCard(p,i,el){
+
+    if(p===1 && lock1) return;
+    if(p===2 && lock2) return;
+
+    if(p===1){
+
+        pick1=p1Hand[i];
+
+        document.querySelectorAll("#hand1 .card")
+        .forEach(c=>c.classList.remove("selected"));
+
+        el.classList.add("selected");
+    }
+
+    if(p===2){
+
+        pick2=p2Hand[i];
+
+        document.querySelectorAll("#hand2 .card")
+        .forEach(c=>c.classList.remove("selected"));
+
+        el.classList.add("selected");
     }
 }
 
 
-// Aufdecken
-function reveal() {
+// Sperren
+function lockPick(p){
 
-    if (!seen1 || !seen2) {
-        alert("Beide müssen ihre Karte sehen!");
+    if(p===1){
+
+        if(!pick1){
+            alert("Erst Karte wählen!");
+            return;
+        }
+
+        lock1=true;
+    }
+
+    if(p===2){
+
+        if(!pick2){
+            alert("Erst Karte wählen!");
+            return;
+        }
+
+        lock2=true;
+    }
+}
+
+
+// Auswertung
+function reveal(){
+
+    if(!lock1 || !lock2){
+        alert("Beide müssen sperren!");
         return;
     }
 
-    let text = "";
+    let first = starter===1 ? pick1:pick2;
+    let second = starter===1 ? pick2:pick1;
 
-    if (p1.value > p2.value) {
-        text = "🏆 Spieler Oben gewinnt!";
-    }
-    else if (p2.value > p1.value) {
-        text = "🏆 Spieler Unten gewinnt!";
-    }
-    else {
-        text = "🤝 Unentschieden!";
+    let winner = starter;
+
+    // Trumpf-Regel
+    if(first.rank.trump && !second.rank.trump){}
+    else if(!first.rank.trump && second.rank.trump){
+        winner = starter===1?2:1;
     }
 
-    document.getElementById("result").innerText =
-        "Oben: " + p1.name +
-        "\nUnten: " + p2.name +
-        "\n" + text;
+    // Beide Trumpf
+    else if(first.rank.trump && second.rank.trump){
+
+        if(second.power>first.power){
+            winner = starter===1?2:1;
+        }
+    }
+
+    // Farbe
+    else if(first.suit===second.suit){
+
+        if(second.power>first.power){
+            winner = starter===1?2:1;
+        }
+    }
+
+    info.innerText=
+        "Oben: "+pick1.name+
+        "\nUnten: "+pick2.name+
+        "\n\n🏆 Gewinner: Spieler "+
+        (winner===1?"Oben":"Unten");
 }
 
 
 // Neustart
-function restart() {
-
-    p1 = randomCard();
-    p2 = randomCard();
-
-    seen1 = false;
-    seen2 = false;
-
-    document.getElementById("card1").style.display = "none";
-    document.getElementById("card2").style.display = "none";
-
-    document.getElementById("result").innerText = "";
+function restart(){
+    setup();
 }
+
+
+// Start
+setup();
 
 </script>
 
